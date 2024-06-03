@@ -1,26 +1,54 @@
-<p align="center">
-<img src="https://raw.githubusercontent.com/MelissaN/holberton-system_engineering-devops/master/0x19-postmortem/youtube500error.jpg" width=75% height=75%/>
-</p>
+My First Postmortem: The Case of the Unresponsive Widgets
+Issue Summary
+Duration:
 
-## Service unavailability
-### Incident report for [Site Outage](https://raw.githubusercontent.com/MelissaN/holberton-system_engineering-devops/master/0x19-postmortem/youtube500error.jpg)
+Outage start: March 10, 2024, 09:00 AM (UTC)
+Outage end: March 10, 2024, 12:30 PM (UTC)
+Impact:
 
-#### Issue Summary
-On September 11th, 2018 from 9:39 AM to 9:49 AM UTC, the company's website was down for ten minutes. 100% of users experienced a 500 internal server error caused by a mispelled filename in a configuration file.
+Our main web application’s widget loading service was down.
+Users experienced unresponsive widgets, leading to a degraded user experience.
+Approximately 60% of the user base was affected.
+Root Cause:
 
-#### Timeline
-* 9:39 AM   Sitewide update deployed; outage begins
-* 9:40 AM   Error logs checked by DevOps team
-* 9:43 AM   Configuration updated to log extra errors
-* 9:45 AM   Filename error caught in config file
-* 9:47 AM   Execute Puppet manifest across all company servers
-* 9:49 AM   100% restored and back online
+A critical configuration file was inadvertently deleted during a routine server update, causing the widget service to fail to initialize.
+Timeline
+09:00 AM - Issue detected via automated monitoring alerts indicating a spike in error rates.
+09:05 AM - Engineers began investigating the widget loading service.
+09:15 AM - Initial assumption was a network issue, leading to a check of server connections and DNS settings.
+09:30 AM - Investigation shifted to the widget service's backend servers; no anomalies found in server health or logs.
+10:00 AM - Customer complaints started to roll in, escalating the urgency.
+10:15 AM - DevOps team involved to assist with deeper system diagnostics.
+10:45 AM - Discovered missing configuration file during a comprehensive review of recent server updates.
+11:00 AM - Restoration of the missing configuration file began.
+11:30 AM - Configuration file restored; services restarted.
+12:00 PM - System functionality confirmed; widget service fully operational.
+12:30 PM - Post-resolution monitoring confirmed stable operations.
+Root Cause and Resolution
+Root Cause:
 
-#### Root Cause and Resolution
-After a small sitewide update was deployed without first being tested, outage to the site began. When no errors were found in our 'error.log' files we modified our configuration file to allow for more erorr logging. With the help of 'strace,' it appeared an accidental filename mispelling triggered errors when the site was requested. The server was attempting to locate the file as normal procedure but failed to find the file ending in ".phpp" when it should be looking for ".php" After changing this line in the '/var/www/html/wp-settings.php' file, tests suceeded to show the site. A puppet manifest was written and executed across all company servers immediately after to restore service.
+During a routine server update, a script responsible for cleaning old log files mistakenly included the widget service’s configuration file due to a misconfigured file path. This deletion prevented the widget service from initializing correctly.
+Resolution:
 
-#### Corrective and Preventative Measures
-After a discussion it has been decided we can prevent this in the future by:
-* Modifying configuration files for more error logging to quicken response times
-* Test before deploying on all servers no matter how small an update
-This is only a small incident so we are doing great! Thanks for your patience and your continued confidence in us.
+The missing configuration file was restored from the most recent backup.
+The widget service was restarted, which reinitialized the service correctly, restoring full functionality to the affected widgets.
+Corrective and Preventative Measures
+Improvements/Fixes:
+
+Enhance Update Scripts:
+Review and improve the scripts used during server updates to ensure critical configuration files are protected.
+Monitoring Enhancements:
+Implement additional monitoring on critical configuration files to detect any unintended deletions or modifications.
+Backup Procedures:
+Ensure that all configuration files are included in regular backup routines with more frequent snapshots.
+TODO List:
+
+Patch Update Scripts:
+Modify update scripts to use absolute paths and include checks to avoid affecting critical files.
+Add Configuration File Monitoring:
+Implement a file integrity monitoring tool to alert the team of any changes to critical configuration files.
+Enhance Backup Frequency:
+Increase the frequency of backups for configuration files to every hour instead of daily.
+Conduct Training:
+Provide additional training to the DevOps team on the importance of safeguarding critical configurations and the proper use of update scripts.
+By addressing these points, we can prevent similar issues in the future and ensure a more resilient and reliable widget service for our users.
